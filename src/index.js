@@ -4,6 +4,8 @@ const app = express();
 const path = require('path');
 const hbs = require('hbs');
 const bodyParser = require('body-parser');
+const helpers = require('./helpers');
+var functions = require('./funciones');
 
 //Register all the folders / libraries
 const publicDirectory = path.join(__dirname, '../public');
@@ -24,7 +26,13 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
+
     res.render('register');
+});
+
+app.get('/cursos', (req, res) => {
+
+    res.render('lista-cursos');
 });
 
 

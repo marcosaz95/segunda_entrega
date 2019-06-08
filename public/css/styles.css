@@ -6,3 +6,12 @@
 .login-form .button-container {
     text-align: center;
 }
+
+.container {
+    padding: 24px;
+}
+
+.tab-content {
+    padding: 24px;
+    text-align: center;
+}
