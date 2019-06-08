@@ -1,1 +1,16 @@
-[{"rol":"ASPIRANTE"}]
+[
+    {
+        "documento": "1234",
+        "nombre": "Marcos Arenas Zuleta",
+        "correo": "marcosaz95@gmail.com",
+        "telefono": 12345678,
+        "rol": "COORDINADOR"
+    },
+    {
+        "documento": "123",
+        "nombre": "Stiven Cuellar Mejia",
+        "correo": "stivencuellar@gmail.com",
+        "telefono": 98765432,
+        "rol": "COORDINADOR"
+    }
+]
