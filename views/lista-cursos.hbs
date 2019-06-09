@@ -1,14 +1,25 @@
 {{>header}}
 <div class="container">
-    <h3>Bienvenido estudiante</h3>
+    <div class="row">
+        <h3 class="col">Bienvenido {{usuario.nombre}}</h3>
+        {{#checkRol usuario}}
+        <form action="/cursosform" method="get" class="col-2">
+            <button type="submit" class="btn btn-primary">Crear
+                curso</button>
+        </form>
+        {{/checkRol}}
+    </div>
+    {{#if error}}
+    <div class="alert alert-success">Curso creado con exito</div>
+    {{/if}}
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="mis-cursos" data-toggle="tab" href="#misCursos" role="tab" aria-controls="misCursos"
-                aria-selected="true">Mis cursos</a>
+            <a class="nav-link active" id="mis-cursos" data-toggle="tab" href="#misCursos" role="tab"
+                aria-controls="misCursos" aria-selected="true">Mis cursos</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="otros-cursos" data-toggle="tab" href="#otrosCursos" role="tab" aria-controls="otrosCursos"
-                aria-selected="false">Otros cursos</a>
+            <a class="nav-link" id="otros-cursos" data-toggle="tab" href="#otrosCursos" role="tab"
+                aria-controls="otrosCursos" aria-selected="false">Otros cursos</a>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">

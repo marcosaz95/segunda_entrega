@@ -1,29 +1,12 @@
 const hbs = require('hbs');
 const fs = require('fs');
 
-hbs.registerHelper('registrarAspirante', (aspirante) => {
-    console.log('helper', aspirante);
-    const existsFile = fs.existsSync('./../usuarios.json');
-    const nuevoAspirante = {
-        documento: aspirante.documento,
-        nombre: aspirante.nombre,
-        correo: aspirante.correo,
-        telefono: aspirante.telefono,
-        rol: 'ASPIRANTE'
+hbs.registerHelper('checkRol', (usuario, options) => {
+    if (usuario.rol === 'COORDINADOR') {
+        return options.fn(this);
     }
-    if (existsFile) {
-        const usuarios = JSON.parse(fs.readFileSync('./../usuarios.json'));
-        const usuarioExistente = usuarios.find(us => us.documento === aspirante.documento);
-        if (usuarioExistente) {
-
-        } else {
-            usuarios.push(nuevoAspirante);
-            guardarUsuarios(usuarios);
-        }
-    } else {
-        guardarUsuarios([nuevoAspirante]);
-    }
-});
+    return options.inverse(this);
+})
 
 hbs.registerHelper('listar', (documento, propios) => {
     const cursosXEstudiante = require('./../cursosXUsuario.json');

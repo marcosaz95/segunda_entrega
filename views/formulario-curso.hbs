@@ -1,2 +1,42 @@
 {{>header}}
+<div class="card login-form">
+    <form class="column" action="/checkCurso" method="post">
+        {{#if error}}
+        <div class="alert alert-danger">Ya existe un curso con ese id</div>
+        {{/if}}
+        <div class="form-group">
+            <label for="idCurso">Id del curso</label>
+            <input type="text" class="form-control" id="idCurso" name="idCurso" placeholder="Id del curso" required>
+        </div>
+        <div class="form-group">
+            <label for="nombre">Nombre completo</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre completo" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <input type="text" class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
+                required>
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor</label>
+            <input type="number" class="form-control" id="valor" name="valor" placeholder="Valor" required>
+        </div>
+        <div class="form-group">
+            <label for="modalidad">Modalidad</label>
+            <select class="form-control" id="modalidad" name="modalidad">
+                <option>Virtual</option>
+                <option>Presencial</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="intensidadHoraria">Intensidad horaria</label>
+            <input type="text" class="form-control" id="intensidadHoraria" name="intensidadHoraria" placeholder="Intensidad horaria" required>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <button type="submit" class="btn btn-primary col-2">Crear</button>
+            <div class="col"></div>
+        </div>
+    </form>
+</div>
 {{>footer}}
