@@ -1,6 +1,5 @@
 const listarCursos = (documento) => {
   const cursos = require('./../cursos.json');
-  console.log(cursos);
   return retornarTablaCursos(cursos, documento);
 };
 
