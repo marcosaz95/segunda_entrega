@@ -1,12 +1,15 @@
 {{>header}}
-<div class="row padding-top-24">
-    <div class="col"></div>
+<div class="row justify-content-center padding-top-24">
     <div class="col-6">
         <div class="card">
             <div class="card-body">
-                <div class="row">
-                    <h5 class="card-title col">{{curso.nombre}}</h5>
-                    <h5 class="col-2">{{curso.estado}}</h5>
+                <div class="d-flex">
+                    <div>
+                        <h5 class="card-title">{{curso.nombre}}</h5>
+                    </div>
+                    <div class="ml-auto">
+                        <h5>{{curso.estado}}</h5>
+                    </div>
                 </div>
                 <h6 class="card-subtitle mb-2 text-muted">${{curso.valor}}</h6>
                 <p class="card-text">{{curso.descripcion}}</p>
@@ -20,20 +23,15 @@
                 {{!-- <button class="btn btn-danger" onclick="eliminarInscripcio(documento, curso.idCurso)">Eliminar</button> --}}
                 {{/puedeInscribir}}
                 {{#esCoordinador documento}}
-                <button class="btn btn-primary">Activar</button>
+                <button class="btn btn-primary">Cerrar</button>
                 {{/esCoordinador}}
-                <a href="#" class="card-link">Card link</a>
-                <a href="#" class="card-link">Another link</a>
             </div>
         </div>
     </div>
-    <div class="col"></div>
 </div>
-<div class="row">
-    <div class="col"></div>
+<div class="row justify-content-center">
     <div class="row align-center padding-top-24 col-6">
         {{{listarEstudiantes curso.idCurso documento}}}
     </div>
-    <div class="col"></div>
 </div>
 {{>footer}}

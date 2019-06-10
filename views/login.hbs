@@ -1,6 +1,6 @@
 {{>header}}
 <div class="card login-form">
-    <form class="column" action='/cursos' method="post">
+    <form class="column" action='/lista' method="post">
         {{#if error}}
         <div class="alert alert-danger">El documento de identidad ingresado no es válido</div>
         {{/if}}
@@ -9,8 +9,7 @@
         {{/if}}
         <div class="form-group">
             <label for="documento">Documento de identidad</label>
-            <input type="text" class="form-control" id="documento" name="documento" placeholder="Documento de identidad"
-                required>
+            <input type="text" class="form-control" id="documento" name="documento" placeholder="Documento de identidad" required>
         </div>
         <div class="row">
             <span class="col-10">¿No tienes cuenta? <a href="register">Registrate acá</a></span>
