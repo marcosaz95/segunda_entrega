@@ -93,6 +93,14 @@ app.get('/cursosform', (req, res) => {
     });
 });
 
+app.get('/cursosdetalle', (req, res) => {
+    const curso = funciones.obtenerCursoXId(req.query.id);
+    res.render('detalle-curso', {
+        curso,
+        documento: req.query.documento
+    });
+});
+
 app.get('*', (req, res) => {
     res.render('error');
 })

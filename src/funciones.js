@@ -23,6 +23,7 @@ const obtenerCursoXId = (idCurso) => {
     return null;
 }
 
+
 const registrarUsuario = (aspirante) => {
     const usuarios = require('./../usuarios.json');
     const nuevoAspirante = {
@@ -49,7 +50,7 @@ const registrarCurso = (curso) => {
         valor: curso.valor,
         modalidad: curso.modalidad,
         intensidadHoraria: curso.intensidadHoraria,
-        estado: 'ACTIVO'
+        estado: 'DISPONIBLE'
     }
     if (cursos && cursos.length) {
         cursos.push(nuevoCurso);
@@ -59,13 +60,23 @@ const registrarCurso = (curso) => {
     }
 };
 
+const eliminarInscripcion = (documento, idCurso) => {
+    const cursosXEstudiante = require('./../cursosXUsuario.json');
+    if (cursosXEstudiante && cursosXEstudiante.length) {
+        const inscripcion = cursosXEstudiante.findIndex(cur => (cur.idCurso === idCurso && cur.documento === documento));
+        // if ((!inscripcion && inscribir) || (inscripcion && !inscribir)) {
+        //     return options.fn(this);
+        // }
+    }
+}
+
 const guardarUsuarios = (usuarios) => {
     const datos = JSON.stringify(usuarios);
     fs.writeFile('usuarios.json', datos, (err) => { });
-} 
+}
 const guardarCursos = (cursos) => {
     const datos = JSON.stringify(cursos);
     fs.writeFile('cursos.json', datos, (err) => { });
-} 
+}
 
-module.exports = { obtenerUsuarioXDocumento, registrarUsuario, obtenerCursoXId, registrarCurso };
+module.exports = { obtenerUsuarioXDocumento, registrarUsuario, obtenerCursoXId, registrarCurso, eliminarInscripcion };
