@@ -1,38 +1,83 @@
 [
-    {
-        "idCurso": "1",
-        "nombre": "Programación",
-        "descripcion": "Curso para aprender node.js",
-        "valor": "100.000",
-        "modalidad": "Virtual",
-        "intensidadHoraria": "10 horas / semanales",
-        "estado": "DISPONIBLE"
-    },
-    {
-        "idCurso": "2",
-        "nombre": "Ingles",
-        "descripcion": "Ingles avanzado",
-        "valor": "50.000",
-        "modalidad": "Virtual",
-        "intensidadHoraria": "10 horas / semanales",
-        "estado": "DISPONIBLE"
-    },
-    {
-        "idCurso": "3",
-        "nombre": "Matemáticas",
-        "descripcion": "Cálculo diferencial",
-        "valor": "75.000",
-        "modalidad": "Presencial",
-        "intensidadHoraria": "15 horas / semanales",
-        "estado": "DISPONIBLE"
-    },
-    {
-        "idCurso": "4",
-        "nombre": "Prueba",
-        "descripcion": "Prueba",
-        "valor": "1234",
-        "modalidad": "Presencial",
-        "intensidadHoraria": "Prueba",
-        "estado": "DISPONIBLE"
-    }
+  {
+    "idCurso": "1",
+    "nombre": "Programación",
+    "descripcion": "Curso para aprender node.js",
+    "valor": "100.000",
+    "modalidad": "Virtual",
+    "intensidadHoraria": "10 horas / semanales",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "2",
+    "nombre": "Ingles",
+    "descripcion": "Ingles avanzado",
+    "valor": "50.000",
+    "modalidad": "Virtual",
+    "intensidadHoraria": "10 horas / semanales",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "3",
+    "nombre": "Matemáticas",
+    "descripcion": "Cálculo diferencial",
+    "valor": "75.000",
+    "modalidad": "Presencial",
+    "intensidadHoraria": "15 horas / semanales",
+    "estado": "CERRADO"
+  },
+  {
+    "idCurso": "4",
+    "nombre": "Prueba",
+    "descripcion": "Prueba",
+    "valor": "1234",
+    "modalidad": "Presencial",
+    "intensidadHoraria": "Prueba",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "5",
+    "nombre": "test",
+    "descripcion": "test",
+    "valor": "111111",
+    "modalidad": "Presencial",
+    "intensidadHoraria": "5 horas semanales",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "6",
+    "nombre": "t",
+    "descripcion": "t",
+    "valor": "3",
+    "modalidad": "Virtual",
+    "intensidadHoraria": "5",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "7",
+    "nombre": "1",
+    "descripcion": "1",
+    "valor": "1",
+    "modalidad": "Virtual",
+    "intensidadHoraria": "4",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "11",
+    "nombre": "1",
+    "descripcion": "1",
+    "valor": "1",
+    "modalidad": "Virtual",
+    "intensidadHoraria": "1",
+    "estado": "DISPONIBLE"
+  },
+  {
+    "idCurso": "12",
+    "nombre": "test",
+    "descripcion": "test",
+    "valor": "12",
+    "modalidad": "Presencial",
+    "intensidadHoraria": "12",
+    "estado": "DISPONIBLE"
+  }
 ]

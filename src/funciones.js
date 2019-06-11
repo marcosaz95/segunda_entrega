@@ -62,10 +62,22 @@ const eliminarInscripcion = (documento, idCurso) => {
   const cursosXEstudiante = require('./../cursosXUsuario.json');
   if (cursosXEstudiante && cursosXEstudiante.length) {
     const inscripcion = cursosXEstudiante.findIndex((cur) => cur.idCurso === idCurso && cur.documento === documento);
-    // if ((!inscripcion && inscribir) || (inscripcion && !inscribir)) {
-    //     return options.fn(this);
-    // }
+    if (inscripcion !== -1) {
+      cursosXEstudiante.splice(inscripcion, 1);
+      guardarCursosXEstudiante(cursosXEstudiante);
+      console.log('eliminado');
+    }
   }
+};
+
+const inscribirEstudiante = (documento, idCurso) => {
+  const cursosXEstudiante = require('./../cursosXUsuario.json');
+  const nuevaInscripcion = {
+    idCurso,
+    documento,
+  };
+  cursosXEstudiante.push(nuevaInscripcion);
+  guardarCursosXEstudiante(cursosXEstudiante);
 };
 
 const guardarUsuarios = (usuarios) => {
@@ -77,10 +89,16 @@ const guardarCursos = (cursos) => {
   fs.writeFile('cursos.json', datos, (err) => {});
 };
 
+const guardarCursosXEstudiante = (cursosXEstudiante) => {
+  const datos = JSON.stringify(cursosXEstudiante);
+  fs.writeFile('cursosXUsuario.json', datos, (err) => {});
+};
+
 module.exports = {
   obtenerUsuarioXDocumento,
   registrarUsuario,
   obtenerCursoXId,
   registrarCurso,
   eliminarInscripcion,
+  inscribirEstudiante,
 };

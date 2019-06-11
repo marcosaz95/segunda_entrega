@@ -1,4 +1,10 @@
 {{>header}}
+<script>
+    function eliminarInscripcion(documento, idCurso, loggedDoc) {
+        window.location = `/eliminarInscripcion?idCurso=${idCurso}&documento=${documento}&loggedDoc=${loggedDoc}`;
+    }
+</script>
+
 <div class="row justify-content-center padding-top-24">
     <div class="col-6">
         <div class="card">
@@ -15,12 +21,20 @@
                 <p class="card-text">{{curso.descripcion}}</p>
                 <h6 class="card-subtitle mb-2 text-muted">{{curso.modalidad}}</h6>
                 <h6 class="card-subtitle mb-2 text-muted">{{curso.intensidadHoraria}}</h6>
-                {{#puedeInscribir documento curso.idCurso true}}
-                <button class="btn btn-primary">Inscribir</button>
-                {{/puedeInscribir}}
-                {{#puedeInscribir documento curso.idCurso false}}
-                <button class="btn btn-danger">Eliminar</button>
-                {{!-- <button class="btn btn-danger" onclick="eliminarInscripcio(documento, curso.idCurso)">Eliminar</button> --}}
+                <form action="/inscribir" method="get">
+                    <input type="hidden" name="documento" value="{{documento}}" />
+                    <input type="hidden" name="idCurso" value="{{curso.idCurso}}" />
+                    {{#puedeInscribir documento curso.idCurso true}}
+                    <button class="btn btn-primary" type="submit">Inscribir</button>
+                    {{/puedeInscribir}}
+                </form>
+                <form action="/eliminarInscripcion" method="get">
+                    <input type="hidden" name="loggedDoc" value="{{documento}}" />
+                    <input type="hidden" name="documento" value="{{documento}}" />
+                    <input type="hidden" name="idCurso" value="{{curso.idCurso}}" />
+                    {{#puedeInscribir documento curso.idCurso false}}
+                    <button class="btn btn-danger" type="submit">Eliminar</button>
+                </form>
                 {{/puedeInscribir}}
                 {{#esCoordinador documento}}
                 <button class="btn btn-primary">Cerrar</button>
@@ -29,6 +43,16 @@
         </div>
     </div>
 </div>
+{{#if eliminado}}
+<div class="row justify-content-center padding-top-24">
+    <div class="alert alert-success row align-center col-6">Estudiante eliminado con exito</div>
+</div>
+{{/if}}
+{{#if inscrito}}
+<div class="row justify-content-center padding-top-24">
+    <div class="alert alert-success row align-center col-6">Estudiante inscrito con exito</div>
+</div>
+{{/if}}
 <div class="row justify-content-center">
     <div class="row align-center padding-top-24 col-6">
         {{{listarEstudiantes curso.idCurso documento}}}

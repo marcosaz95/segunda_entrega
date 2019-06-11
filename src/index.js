@@ -22,9 +22,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.set('view engine', 'hbs');
 
+var loggedDoc;
+
 app.get('/', (req, res) => {
   const valid = req.query.valid;
   const creado = req.query.creado;
+  loggedDoc = '';
   res.render('login', {
     error: valid ? true : false,
     creado: creado ? true : false,
@@ -57,15 +60,20 @@ app.post('/checkCurso', (req, res) => {
     res.end();
   } else {
     funciones.registrarCurso(req.body);
-    res.writeHead(301, { Location: '/cursos' });
+    console.log('doc ', loggedDoc);
+    res.redirect(307, `/lista?creado=true`);
+    // res.writeHead(301, { Location: '/cursos' });
     res.end();
   }
 });
 
 app.post('/lista', (req, res) => {
-  const usuario = funciones.obtenerUsuarioXDocumento(req.body.documento);
+  console.log(req.query);
   const creado = req.query.creado;
+  let doc = creado ? loggedDoc : req.body.documento;
+  const usuario = funciones.obtenerUsuarioXDocumento(doc);
   if (usuario) {
+    loggedDoc = req.body.documento;
     res.render('lista', {
       usuario,
       creado: creado ? true : false,
@@ -84,6 +92,8 @@ app.get('/cursosform', (req, res) => {
 });
 
 app.get('/detalle', (req, res) => {
+  loggedDoc = req.query.documento;
+  console.log(loggedDoc);
   if (req.query.tipo === 'u') {
     const usuario = funciones.obtenerUsuarioXDocumento(req.query.id);
     res.render('detalle-usuario', {
@@ -95,7 +105,28 @@ app.get('/detalle', (req, res) => {
     res.render('detalle-curso', {
       curso,
       documento: req.query.documento,
+      eliminado: req.query.eliminado,
+      inscrito: req.query.inscrito,
     });
+  }
+});
+
+app.get('/eliminarInscripcion', (req, res) => {
+  loggedDoc = req.query.loggedDoc;
+  if (req.query.documento && req.query.idCurso) {
+    funciones.eliminarInscripcion(req.query.documento, req.query.idCurso);
+    res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${loggedDoc}&tipo=c&eliminado=true`);
+  }
+});
+
+app.get('/inscribir', (req, res) => {
+  console.log('inscribir', req.query);
+  loggedDoc = req.query.documento;
+  if (req.query.documento && req.query.idCurso) {
+    funciones.inscribirEstudiante(req.query.documento, req.query.idCurso);
+    res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${loggedDoc}&tipo=c&inscrito=true`);
+  } else {
+    res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${loggedDoc}&tipo=c`);
   }
 });
 
