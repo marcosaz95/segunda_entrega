@@ -39,6 +39,25 @@ const registrarUsuario = (aspirante) => {
   }
 };
 
+const actualizarUsuario = (usuario) => {
+  const usuarios = require('./../usuarios.json');
+  if (usuarios && usuarios.length) {
+    const viejoUsuarioIdx = usuarios.findIndex(us => us.documento === usuario.documento);
+    if (viejoUsuarioIdx !== -1) {
+      const nuevoUsuario = {
+        documento: usuario.documento,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        telefono: usuario.telefono,
+        rol: usuario.rol,
+      }
+      usuarios[viejoUsuarioIdx] = nuevoUsuario;
+      guardarUsuarios(usuarios);
+    }
+
+  }
+}
+
 const registrarCurso = (curso) => {
   const cursos = require('./../cursos.json');
   const nuevoCurso = {
@@ -80,6 +99,17 @@ const inscribirEstudiante = (documento, idCurso) => {
   guardarCursosXEstudiante(cursosXEstudiante);
 };
 
+const cerrarCurso = (idCurso) => {
+  const cursos = require('./../cursos.json');
+  if (cursos && cursos.length) {
+    const cursoIdx = cursos.findIndex(cur => cur.idCurso === idCurso);
+    if (cursoIdx !== -1) {
+      cursos[cursoIdx].estado = 'CERRADO';
+      guardarCursos(cursos);
+    }
+  }
+};
+
 const guardarUsuarios = (usuarios) => {
   const datos = JSON.stringify(usuarios);
   fs.writeFile('usuarios.json', datos, (err) => {});
@@ -101,4 +131,6 @@ module.exports = {
   registrarCurso,
   eliminarInscripcion,
   inscribirEstudiante,
+  actualizarUsuario,
+  cerrarCurso
 };

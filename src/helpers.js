@@ -19,6 +19,15 @@ hbs.registerHelper('puedeInscribir', (documento, idCurso, inscribir, options) =>
   return options.inverse(this);
 });
 
+hbs.registerHelper('puedeCerrar', (documento, idCurso, options) => {
+  const curso = funciones.obtenerCursoXId(idCurso);
+  const usuario = funciones.obtenerUsuarioXDocumento(documento);
+  if (usuario.rol === 'COORDINADOR' && curso.estado === 'DISPONIBLE') {
+    return options.fn(this);
+  }
+  return options.inverse(this);
+});
+
 hbs.registerHelper('esCoordinador', (documento, options) => {
   const usuario = funciones.obtenerUsuarioXDocumento(documento);
   if (usuario && usuario.rol === 'COORDINADOR') {

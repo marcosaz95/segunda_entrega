@@ -2,10 +2,10 @@
 <div class="row justify-content-center padding-top-24">
     <div class="col-6">
         <div class="card container">
-            <form class="column" action="/checkCurso" method="post">
+            <form class="column" action="/actualizarUsuario" method="post">
                 <div class="form-group">
                     <label for="documento">Documento</label>
-                    <input type="text" class="form-control" id="documento" name="documento" placeholder="Documento" value="{{usuario.documento}}" required>
+                    <input type="text" class="form-control" id="documento" name="documento" placeholder="Documento" value="{{usuario.documento}}" readonly required>
                 </div>
                 <div class="form-group">
                     <label for="nombre">Nombre completo</label>

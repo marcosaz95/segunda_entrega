@@ -60,16 +60,21 @@ app.post('/checkCurso', (req, res) => {
     res.end();
   } else {
     funciones.registrarCurso(req.body);
-    console.log('doc ', loggedDoc);
     res.redirect(307, `/lista?creado=true`);
     // res.writeHead(301, { Location: '/cursos' });
     res.end();
   }
 });
 
+app.post('/actualizarUsuario', (req, res) => {
+  console.log(req.body);
+  funciones.actualizarUsuario(req.body);
+  res.redirect(307, `/lista?actualizado=true`);
+});
+
 app.post('/lista', (req, res) => {
-  console.log(req.query);
   const creado = req.query.creado;
+  const actualizado = req.query.actualizado;
   let doc = creado ? loggedDoc : req.body.documento;
   const usuario = funciones.obtenerUsuarioXDocumento(doc);
   if (usuario) {
@@ -77,6 +82,7 @@ app.post('/lista', (req, res) => {
     res.render('lista', {
       usuario,
       creado: creado ? true : false,
+      actualizado: actualizado ? true : false
     });
   } else {
     res.writeHead(301, { Location: '/?valid=false' });
@@ -93,7 +99,6 @@ app.get('/cursosform', (req, res) => {
 
 app.get('/detalle', (req, res) => {
   loggedDoc = req.query.documento;
-  console.log(loggedDoc);
   if (req.query.tipo === 'u') {
     const usuario = funciones.obtenerUsuarioXDocumento(req.query.id);
     res.render('detalle-usuario', {
@@ -107,6 +112,7 @@ app.get('/detalle', (req, res) => {
       documento: req.query.documento,
       eliminado: req.query.eliminado,
       inscrito: req.query.inscrito,
+      cerrado: req.query.cerrado
     });
   }
 });
@@ -116,6 +122,15 @@ app.get('/eliminarInscripcion', (req, res) => {
   if (req.query.documento && req.query.idCurso) {
     funciones.eliminarInscripcion(req.query.documento, req.query.idCurso);
     res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${loggedDoc}&tipo=c&eliminado=true`);
+  }
+});
+
+app.get('/cerrarCurso', (req, res) => {
+  console.log(req.query);
+  loggedDoc = req.query.loggedDoc;
+  if (req.query.idCurso) {
+    funciones.cerrarCurso(req.query.idCurso);
+    res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${loggedDoc}&tipo=c&cerrado=true`);
   }
 });
 
