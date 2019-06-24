@@ -1,14 +1,16 @@
 const fs = require('fs');
+const Usuario = require('./models/usuarios');
 
 const obtenerUsuarioXDocumento = (documento) => {
-  const usuarios = require('./../usuarios.json');
-  if (usuarios && usuarios.length) {
-    const usuario = usuarios.find((us) => us.documento === documento);
-    if (usuario) {
-      return usuario;
-    }
-  }
-  return null;
+  return new Promise((resolve, reject) => {
+    return Usuario.findOne({ documento }, (err, result) => {
+      if (err) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    })
+  })
 };
 
 const obtenerCursoXId = (idCurso) => {
@@ -23,20 +25,23 @@ const obtenerCursoXId = (idCurso) => {
 };
 
 const registrarUsuario = (aspirante) => {
-  const usuarios = require('./../usuarios.json');
-  const nuevoAspirante = {
+  const nuevoAspirante = new Usuario({
     documento: aspirante.documento,
     nombre: aspirante.nombre,
     correo: aspirante.correo,
     telefono: aspirante.telefono,
     rol: 'ASPIRANTE',
-  };
-  if (usuarios && usuarios.length) {
-    usuarios.push(nuevoAspirante);
-    guardarUsuarios(usuarios);
-  } else {
-    guardarUsuarios([nuevoAspirante]);
-  }
+  });
+  return new Promise((resolve, reject) => {
+    return nuevoAspirante.save((err, result) => {
+      if (err) {
+        console.log(err.errors.documento);
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    })
+  })
 };
 
 const actualizarUsuario = (usuario) => {
@@ -112,16 +117,16 @@ const cerrarCurso = (idCurso) => {
 
 const guardarUsuarios = (usuarios) => {
   const datos = JSON.stringify(usuarios);
-  fs.writeFile('usuarios.json', datos, (err) => {});
+  fs.writeFile('usuarios.json', datos, (err) => { });
 };
 const guardarCursos = (cursos) => {
   const datos = JSON.stringify(cursos);
-  fs.writeFile('cursos.json', datos, (err) => {});
+  fs.writeFile('cursos.json', datos, (err) => { });
 };
 
 const guardarCursosXEstudiante = (cursosXEstudiante) => {
   const datos = JSON.stringify(cursosXEstudiante);
-  fs.writeFile('cursosXUsuario.json', datos, (err) => {});
+  fs.writeFile('cursosXUsuario.json', datos, (err) => { });
 };
 
 module.exports = {

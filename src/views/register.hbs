@@ -1,8 +1,8 @@
 {{>header}}
 <div class="card login-form">
     <form class="column" action="/check" method="post">
-        {{#if error}}
-        <div class="alert alert-danger">Ya existe un usuario con este documento</div>
+        {{#if mensaje}}
+        <div class="alert alert-danger">{{mensaje}}</div>
         {{/if}}
         <div class="form-group">
             <label for="documento">Documento de identidad</label>
