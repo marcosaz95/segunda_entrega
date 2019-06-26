@@ -4,6 +4,7 @@ const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
 require('./helpers');
 
 //paths
@@ -13,8 +14,8 @@ const dirNode_modules = path.join(__dirname, '../node_modules');
 
 //LocalStorage
 if (typeof localStorage === 'undefined' || localStorage === null) {
-  var LocalStorage = require('node-localstorage').LocalStorage;
-  localStorage = new LocalStorage('./scratch');
+	var LocalStorage = require('node-localstorage').LocalStorage;
+	localStorage = new LocalStorage('./scratch');
 }
 
 
@@ -26,6 +27,28 @@ app.use('/js', express.static(dirNode_modules + '/bootstrap/dist/js'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// session
+app.use(session({
+	secret: 'keyboard cat',
+	resave: false,
+	saveUninitialized: true
+}));
+
+//middleware
+app.use((req, res, next) => {
+
+	//En caso de usar variables de sesión
+	console.log('test');
+	if (req.session.usuario) {
+		res.locals.sesion = true
+		res.locals.nombre = req.session.usuario.nombre
+		res.locals.rol = req.session.usuario.rol;
+		console.log(res.locals.nombre);
+	// } else {
+	// 	res.redirect('/');
+	}
+	next()
+})
 
 app.use(require('./routes'));
 
@@ -38,5 +61,5 @@ mongoose.connect('mongodb://localhost:27017/cursos', { useNewUrlParser: true }, 
 });
 
 app.listen(3000, () => {
-  console.log('Corriendo node en el puerto 3000');
+	console.log('Corriendo node en el puerto 3000');
 });

@@ -1,11 +1,26 @@
 const funciones = require('./funciones');
+const Curso = require('./models/cursos');
 
-const listarCursos = (documento) => {
-  const cursos = require('./../cursos.json');
-  return retornarTablaCursos(cursos, documento);
+const listarCursos = () => {
+  return new Promise((resolve, reject) => {
+    Curso.find({}, (err, cursos) => {
+      if (err) {
+        reject();
+      }
+      resolve(retornarTablaCursos(cursos));
+    })
+  })
 };
 
 const listarCursosPropios = (documento) => {
+  // return new Promise((resolve, reject) => {
+  //   CursoXUsuario.find({documento}, (err, cursos) => {
+  //     if (err) {
+  //       reject();
+  //     }
+  //     resolve(retornarTablaCursos(cursos));
+  //   })
+  // })
   const cursosXEstudiante = require('./../cursosXUsuario.json');
   const cursos = require('./../cursos.json');
   let cursosAMostrar = [];
@@ -36,36 +51,33 @@ const listarCursosNoPropios = (documento) => {
   return retornarTablaCursos(cursosAMostrar, documento);
 };
 
-const listarUsuarios = (documento) => {
-  const usuarios = require('./../usuarios.json');
-  const usuariosAMostrar = usuarios.filter((us) => us.documento !== documento);
+const listarUsuarios = (usuariosAMostrar) => {
+  let text;
   if (usuariosAMostrar && usuariosAMostrar.length) {
-    let text = `<table class="table"> 
-                              <thead>
-                                  <th>Documento</th>
-                                  <th>Nombre</th>
-                                  <th>Rol</th>
-                                  <th>Acciones</th>
-                              </thead>
-                              <tbody>`;
+    text = `<table class="table"> 
+                                        <thead>
+                                            <th>Documento</th>
+                                            <th>Nombre</th>
+                                            <th>Rol</th>
+                                            <th>Acciones</th>
+                                        </thead>
+                                        <tbody>`;
     usuariosAMostrar.forEach((usu) => {
       text = `${text} 
-                      <tr>
-                          <td>${usu.documento}</td>
-                          <td>${usu.nombre}</td>
-                          <td>${usu.rol}</td>
-                          <td>
-                              <button class="btn btn-primary" type="button" onclick="mostrarDetalle(${
-                                usu.documento
-                              }, ${documento}, 'u')">Detalle</button>
-                          </td>
-                      </tr>`;
+                                <tr>
+                                    <td>${usu.documento}</td>
+                                    <td>${usu.nombre}</td>
+                                    <td>${usu.rol}</td>
+                                    <td>
+                                        <button class="btn btn-primary" type="button")">Detalle</button>
+                                    </td>
+                                </tr>`;
     });
     text = `${text}</tbody></table>`;
-    return text;
   } else {
-    return '<h3>No hay información por mostrar</h3>';
+    text = '<h3>No hay información por mostrar</h3>';
   }
+  return text;
 };
 
 const listarEstudiantes = (documento, idCurso) => {
@@ -97,8 +109,8 @@ const listarEstudiantes = (documento, idCurso) => {
                         <td>${est.nombre}</td>
                         <td>
                             <button class="btn btn-danger" type="button" onclick="eliminarInscripcion(${
-                              est.documento
-                            }, ${idCurso}, ${documento})">Eliminar</button>
+        est.documento
+        }, ${idCurso}, ${documento})">Eliminar</button>
                         </td>
                     </tr>`;
     });
@@ -109,9 +121,10 @@ const listarEstudiantes = (documento, idCurso) => {
   }
 };
 
-const retornarTablaCursos = (cursos, documento) => {
+const retornarTablaCursos = (cursos) => {
+  console.log(cursos);
   if (cursos && cursos.length) {
-    let text = `<table class="table"> 
+    let text = `<form action="/detalle" method="get"><table class="table"> 
                                   <thead>
                                       <th>Nombre</th>
                                       <th>Descripción</th>
@@ -126,13 +139,12 @@ const retornarTablaCursos = (cursos, documento) => {
                               <td>${cur.descripcion}</td>
                               <td>${cur.valor}</td>
                               <td>
-                                  <button class="btn btn-primary" type="button" onclick="mostrarDetalle(${
-                                    cur.idCurso
-                                  }, ${documento}, 'c')">Detalle</button>
+                                  <button class="btn btn-primary" type="submit" name="info" value="c,${cur.idCurso}">Detalle</button>
                               </td>
                           </tr>`;
     });
-    text = `${text}</tbody></table>`;
+    text = `${text}</tbody></table></form>`;
+    console.log(text);
     return text;
   } else {
     return '<h3>No hay cursos disponibles para mostrar</h3>';
@@ -145,4 +157,6 @@ module.exports = {
   listarCursosNoPropios,
   listarUsuarios,
   listarEstudiantes,
+  retornarTablaCursos,
+  listarUsuarios
 };

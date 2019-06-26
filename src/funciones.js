@@ -1,5 +1,7 @@
 const fs = require('fs');
 const Usuario = require('./models/usuarios');
+const Curso = require('./models/cursos');
+const CursoXUsuario = require('./models/cursosXUsuarios');
 
 const obtenerUsuarioXDocumento = (documento) => {
   return new Promise((resolve, reject) => {
@@ -14,15 +16,80 @@ const obtenerUsuarioXDocumento = (documento) => {
 };
 
 const obtenerCursoXId = (idCurso) => {
-  const cursos = require('./../cursos.json');
-  if (cursos && cursos.length) {
-    const curso = cursos.find((cur) => cur.idCurso === idCurso);
-    if (curso) {
-      return curso;
-    }
-  }
-  return null;
+  return new Promise((resolve, reject) => {
+    return Curso.findOne({ idCurso }, (err, result) => {
+      if (err) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    })
+  })
 };
+
+const obtenerCursos = () => {
+  return new Promise((resolve, reject) => {
+    return Curso.find({}, (err, result) => {
+      if (err) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+
+const obtenerUsuariosNoDocumento = (documento) => {
+  return new Promise((resolve, reject) => {
+    return Usuario.find({ documento: { $ne: documento } }, (err, result) => {
+      if (err) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+
+const obtenerUsuariosXCurso = (documento) => {
+  return new Promise((resolve, reject) => {
+    return CursoXUsuario.find({ documento }, (err, result) => {
+      if (err) {
+        reject();
+      } else if (!result) {
+        resolve(result);
+      }else {
+        return Curso.find({ idCurso: { $in: result.map(curso => curso.idCurso) } }, (err, resultCurso) => {
+          if (err) {
+            reject();
+          } else {
+            resolve(resultCurso);
+          }
+        })
+      }
+    })
+  })
+}
+
+const obtenerUsuariosNoCurso = (documento) => {
+  return new Promise((resolve, reject) => {
+    return CursoXUsuario.find({ documento }, (err, result) => {
+      if (err) {
+        reject();
+      } else if (!result) {
+        resolve(result);
+      }else {
+        return Curso.find({ idCurso: { $nin: result.map(curso => curso.idCurso) } }, (err, resultCurso) => {
+          if (err) {
+            reject();
+          } else {
+            resolve(resultCurso);
+          }
+        })
+      }
+    })
+  })
+}
 
 const registrarUsuario = (aspirante) => {
   const nuevoAspirante = new Usuario({
@@ -64,8 +131,7 @@ const actualizarUsuario = (usuario) => {
 }
 
 const registrarCurso = (curso) => {
-  const cursos = require('./../cursos.json');
-  const nuevoCurso = {
+  const nuevoCurso = new Curso({
     idCurso: curso.idCurso,
     nombre: curso.nombre,
     descripcion: curso.descripcion,
@@ -73,13 +139,17 @@ const registrarCurso = (curso) => {
     modalidad: curso.modalidad,
     intensidadHoraria: curso.intensidadHoraria,
     estado: 'DISPONIBLE',
-  };
-  if (cursos && cursos.length) {
-    cursos.push(nuevoCurso);
-    guardarCursos(cursos);
-  } else {
-    guardarCursos([nuevoCurso]);
-  }
+  });
+  console.log(nuevoCurso);
+  return new Promise((resolve, reject) => {
+    return nuevoCurso.save((err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    })
+  })
 };
 
 const eliminarInscripcion = (documento, idCurso) => {
@@ -137,5 +207,9 @@ module.exports = {
   eliminarInscripcion,
   inscribirEstudiante,
   actualizarUsuario,
-  cerrarCurso
+  cerrarCurso,
+  obtenerCursos,
+  obtenerUsuariosNoDocumento,
+  obtenerUsuariosXCurso,
+  obtenerUsuariosNoCurso
 };

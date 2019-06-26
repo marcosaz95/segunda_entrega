@@ -41,16 +41,15 @@ app.post('/check', (req, res) => {
 });
 
 app.post('/checkCurso', (req, res) => {
-    const cursoXId = funciones.obtenerCursoXId(req.body.idCurso);
-    if (cursoXId) {
-        res.writeHead(301, { Location: '/cursosform?valid=false' });
+    funciones.registrarCurso(req.body).then((data) => {
+        res.writeHead(301, { Location: '/lista?creado=true' });
         res.end();
-    } else {
-        funciones.registrarCurso(req.body);
-        res.redirect(307, `/lista?creado=true`);
-        // res.writeHead(301, { Location: '/cursos' });
-        res.end();
-    }
+    }, (err) => {
+        console.log(err);
+        res.render('formulario-curso', {
+            mensaje: 'Ya existe un curso con este id'
+        })
+    })
 });
 
 app.post('/actualizarUsuario', (req, res) => {
@@ -60,22 +59,33 @@ app.post('/actualizarUsuario', (req, res) => {
 });
 
 app.post('/lista', (req, res) => {
-    const creado = req.query.creado;
-    const logDoc = localStorage.getItem('documento');
-    const actualizado = req.query.actualizado;
-    let doc = creado ? logDoc : req.body.documento;
-    const usuario = funciones.obtenerUsuarioXDocumento(doc);
-    if (usuario) {
-        localStorage.setItem('documento', req.body.documento);
-        res.render('lista', {
-            usuario,
-            creado: creado ? true : false,
-            actualizado: actualizado ? true : false
-        });
-    } else {
-        res.writeHead(301, { Location: '/?valid=false' });
-        res.end();
-    }
+    funciones.obtenerUsuarioXDocumento(req.body.documento).then(async (data) => {
+        if (data) {
+            const creado = req.query.creado ? true : false;
+            const actualizado = req.query.actualizado ? true : false;
+            req.session.usuario = data;
+            let lista1;
+            let lista2;
+            if (data.rol === 'COORDINADOR') {
+                lista1 = await funciones.obtenerCursos();
+                lista2 = await funciones.obtenerUsuariosNoDocumento(req.body.documento);
+            } else {
+                lista1 = await funciones.obtenerUsuariosXCurso(req.body.documento);
+                lista2 = await funciones.obtenerUsuariosNoCurso(req.body.documento);
+            }
+            res.render('lista', {
+                usuario: data,
+                nombre: req.session.usuario.nombre,
+                creado,
+                actualizado,
+                lista1,
+                lista2
+            });
+        } else {
+            res.writeHead(301, { Location: '/?valid=false' });
+            res.end();
+        }
+    }, (err) => { })
 });
 
 app.get('/cursosform', (req, res) => {
@@ -86,22 +96,25 @@ app.get('/cursosform', (req, res) => {
 });
 
 app.get('/detalle', (req, res) => {
-    localStorage.setItem('documento', req.query.documento);
-    if (req.query.tipo === 'u') {
+    console.log(req.query);
+    const split = req.query.info.split(',');
+    const type = split[0]
+    if (type === 'u') {
         const usuario = funciones.obtenerUsuarioXDocumento(req.query.id);
         res.render('detalle-usuario', {
             usuario,
             documento: req.query.documento,
         });
     } else {
-        const curso = funciones.obtenerCursoXId(req.query.id);
-        res.render('detalle-curso', {
-            curso,
-            documento: req.query.documento,
-            eliminado: req.query.eliminado,
-            inscrito: req.query.inscrito,
-            cerrado: req.query.cerrado
-        });
+        funciones.obtenerCursoXId(split[1]).then((curso) => {
+            res.render('detalle-curso', {
+                curso,
+                // documento: req.query.documento,
+                // eliminado: req.query.eliminado,
+                // inscrito: req.query.inscrito,
+                // cerrado: req.query.cerrado
+            });
+        })
     }
 });
 
@@ -131,6 +144,13 @@ app.get('/inscribir', (req, res) => {
         res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${req.query.loggedDoc}&tipo=c`);
     }
 });
+
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) return console.log(err)
+    })
+    res.redirect('/')
+})
 
 app.get('*', (req, res) => {
     res.render('error');

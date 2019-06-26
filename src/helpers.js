@@ -28,9 +28,8 @@ hbs.registerHelper('puedeCerrar', (documento, idCurso, options) => {
   return options.inverse(this);
 });
 
-hbs.registerHelper('esCoordinador', (documento, options) => {
-  const usuario = funciones.obtenerUsuarioXDocumento(documento);
-  if (usuario && usuario.rol === 'COORDINADOR') {
+hbs.registerHelper('esCoordinador', (rol, options) => {
+  if (rol === 'COORDINADOR') {
     return options.fn(this);
   }
   return options.inverse(this);
@@ -40,23 +39,17 @@ hbs.registerHelper('eliminarInscripcion', (documento, idCurso) => {
   funciones.eliminarInscripcion(documento, idCurso);
 });
 
-hbs.registerHelper('lista1', (documento) => {
-  const usuario = funciones.obtenerUsuarioXDocumento(documento);
-  if (usuario && usuario.rol === 'COORDINADOR') {
-    return listas.listarCursos(documento);
-  } else {
-    return listas.listarCursosPropios(documento);
-  }
-});
+hbs.registerHelper('obtenerLista1', (lista) => {
+  return listas.retornarTablaCursos(lista);
+})
 
-hbs.registerHelper('lista2', (documento) => {
-  const usuario = funciones.obtenerUsuarioXDocumento(documento);
-  if (usuario && usuario.rol === 'COORDINADOR') {
-    return listas.listarUsuarios(documento);
+hbs.registerHelper('obtenerLista2', (lista, rol) => {
+  if (rol === 'COORDINADOR') {
+    return listas.listarUsuarios(lista);
   } else {
-    return listas.listarCursosNoPropios(documento);
+    return listas.retornarTablaCursos(lista);
   }
-});
+})
 
 hbs.registerHelper('listarEstudiantes', (idCurso, documento) => {
   return listas.listarEstudiantes(documento, idCurso);
