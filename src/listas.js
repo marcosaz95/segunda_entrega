@@ -1,56 +1,3 @@
-const funciones = require('./funcionesInscripcion');
-const Curso = require('./models/cursos');
-
-const listarCursos = () => {
-  return new Promise((resolve, reject) => {
-    Curso.find({}, (err, cursos) => {
-      if (err) {
-        reject();
-      }
-      resolve(retornarTablaCursos(cursos));
-    })
-  })
-};
-
-const listarCursosPropios = (documento) => {
-  // return new Promise((resolve, reject) => {
-  //   CursoXUsuario.find({documento}, (err, cursos) => {
-  //     if (err) {
-  //       reject();
-  //     }
-  //     resolve(retornarTablaCursos(cursos));
-  //   })
-  // })
-  const cursosXEstudiante = require('./../cursosXUsuario.json');
-  const cursos = require('./../cursos.json');
-  let cursosAMostrar = [];
-  const cursosMatriculados = cursosXEstudiante.filter((ce) => ce.documento === documento);
-  if (cursosMatriculados && cursosMatriculados.length) {
-    cursosMatriculados.forEach((curso) => {
-      cursosAMostrar.push(cursos.find((cur) => cur.idCurso === curso.idCurso));
-    });
-  }
-  return retornarTablaCursos(cursosAMostrar, documento);
-};
-
-const listarCursosNoPropios = (documento) => {
-  const cursosXEstudiante = require('./../cursosXUsuario.json');
-  const cursos = require('./../cursos.json');
-  let cursosAMostrar = [];
-  const todosLosCursos = cursos.filter((cur) => cur.estado === 'DISPONIBLE');
-  const cursosMatriculados = cursosXEstudiante.filter((ce) => ce.documento === documento);
-  if (!cursosMatriculados || !cursosMatriculados.length) {
-    cursosAMostrar = todosLosCursos;
-  } else {
-    todosLosCursos.forEach((curso) => {
-      if (!cursosMatriculados.find((cur) => cur.idCurso === curso.idCurso)) {
-        cursosAMostrar.push(curso);
-      }
-    });
-  }
-  return retornarTablaCursos(cursosAMostrar, documento);
-};
-
 const listarUsuarios = (usuariosAMostrar) => {
   let text;
   if (usuariosAMostrar && usuariosAMostrar.length) {
@@ -165,9 +112,6 @@ const retornarTablaCursos = (cursos) => {
 };
 
 module.exports = {
-  listarCursos,
-  listarCursosPropios,
-  listarCursosNoPropios,
   listarUsuarios,
   listarEstudiantes,
   retornarTablaCursos,
