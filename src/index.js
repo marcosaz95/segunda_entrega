@@ -38,12 +38,10 @@ app.use(session({
 app.use((req, res, next) => {
 
 	//En caso de usar variables de sesión
-	console.log('test');
 	if (req.session.usuario) {
 		res.locals.sesion = true
 		res.locals.nombre = req.session.usuario.nombre
 		res.locals.rol = req.session.usuario.rol;
-		console.log(res.locals.nombre);
 	// } else {
 	// 	res.redirect('/');
 	}

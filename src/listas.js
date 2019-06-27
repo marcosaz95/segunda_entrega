@@ -1,4 +1,4 @@
-const funciones = require('./funciones');
+const funciones = require('./funcionesInscripcion');
 const Curso = require('./models/cursos');
 
 const listarCursos = () => {
@@ -54,7 +54,7 @@ const listarCursosNoPropios = (documento) => {
 const listarUsuarios = (usuariosAMostrar) => {
   let text;
   if (usuariosAMostrar && usuariosAMostrar.length) {
-    text = `<table class="table"> 
+    text = `<form action="/detalle" method="get"><table class="table"> 
                                         <thead>
                                             <th>Documento</th>
                                             <th>Nombre</th>
@@ -69,37 +69,29 @@ const listarUsuarios = (usuariosAMostrar) => {
                                     <td>${usu.nombre}</td>
                                     <td>${usu.rol}</td>
                                     <td>
-                                        <button class="btn btn-primary" type="button")">Detalle</button>
+                                        <button class="btn btn-primary" type="submit" name="info" value="u${usu.documento}">Detalle</button>
                                     </td>
                                 </tr>`;
     });
-    text = `${text}</tbody></table>`;
+    text = `${text}</tbody></table></form>`;
   } else {
     text = '<h3>No hay información por mostrar</h3>';
   }
   return text;
 };
 
-const listarEstudiantes = (documento, idCurso) => {
-  const usuario = funciones.obtenerUsuarioXDocumento(documento);
-  if (!usuario || usuario.rol !== 'COORDINADOR') {
+const listarEstudiantes = (estudiantesAMostrar, rol, idCurso) => {
+  if (rol !== 'COORDINADOR' && rol !== 'DOCENTE') {
     return '';
-  }
-  const cursosXEstudiante = require('./../cursosXUsuario.json');
-  const usuarios = require('./../usuarios.json');
-  let estudiantesAMostrar = [];
-  const estudiantesInscritos = cursosXEstudiante.filter((ce) => ce.idCurso === idCurso);
-  if (estudiantesInscritos && estudiantesInscritos.length) {
-    estudiantesInscritos.forEach((est) => {
-      estudiantesAMostrar.push(usuarios.find((us) => us.documento === est.documento));
-    });
   }
   if (estudiantesAMostrar && estudiantesAMostrar.length) {
     let text = `<table class="table"> 
                             <thead>
                                 <th>Documento</th>
                                 <th>Nombre</th>
-                                <th>Acciones</th>
+                                <th>Corre</th>
+                                <th>Telefono</th>
+                                ${rol === 'COORDINADOR' ? '<th>Acciones</th>' : ''}
                             </thead>
                             <tbody>`;
     estudiantesAMostrar.forEach((est) => {
@@ -107,10 +99,15 @@ const listarEstudiantes = (documento, idCurso) => {
                     <tr>
                         <td>${est.documento}</td>
                         <td>${est.nombre}</td>
+                        <td>${est.correo}</td>
+                        <td>${est.telefono}</td>
                         <td>
-                            <button class="btn btn-danger" type="button" onclick="eliminarInscripcion(${
-        est.documento
-        }, ${idCurso}, ${documento})">Eliminar</button>
+                          <form action="/cambiarInscripcion" method="get">
+                              <input type="hidden" name="documento" value="${est.documento}" />
+                              <input type="hidden" name="idCurso" value="${idCurso}" />
+                              <input type="hidden" name="estaInscrito" value="true" />
+                              ${rol === 'COORDINADOR' ? '<button class="btn btn-danger" type="submit">Eliminar</button>' : ''}
+                            </form>
                         </td>
                     </tr>`;
     });
@@ -121,8 +118,25 @@ const listarEstudiantes = (documento, idCurso) => {
   }
 };
 
+const listarDocentes = (docentes, idCurso) => {
+  let text = `<form class="row justify-content-between" action="/cerrarCurso" method="get">
+                <select class="form-control col-8" id="docente" name="docente" required>
+                  <option value="">--Seleccione un docente--</option>`
+  if (docentes && docentes.length) {
+    docentes.forEach((docente) => {
+      text = `${text} 
+                    <option value="${docente.documento}">${docente.nombre}</option>`;
+    });
+    
+  } 
+  text = `${text}</select>
+          <input type="hidden" name="idCurso" value="${idCurso}" />
+          <button class="btn btn-primary col-3" type="submit">Cerrar</button>
+          </form>`;
+  return text;
+};
+
 const retornarTablaCursos = (cursos) => {
-  console.log(cursos);
   if (cursos && cursos.length) {
     let text = `<form action="/detalle" method="get"><table class="table"> 
                                   <thead>
@@ -139,12 +153,11 @@ const retornarTablaCursos = (cursos) => {
                               <td>${cur.descripcion}</td>
                               <td>${cur.valor}</td>
                               <td>
-                                  <button class="btn btn-primary" type="submit" name="info" value="c,${cur.idCurso}">Detalle</button>
+                                  <button class="btn btn-primary" type="submit" name="info" value="c${cur.idCurso}">Detalle</button>
                               </td>
                           </tr>`;
     });
     text = `${text}</tbody></table></form>`;
-    console.log(text);
     return text;
   } else {
     return '<h3>No hay cursos disponibles para mostrar</h3>';
@@ -158,5 +171,6 @@ module.exports = {
   listarUsuarios,
   listarEstudiantes,
   retornarTablaCursos,
-  listarUsuarios
+  listarUsuarios,
+  listarDocentes
 };

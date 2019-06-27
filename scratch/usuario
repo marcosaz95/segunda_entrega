@@ -1,0 +1,7 @@
+{ rol: 'ASPIRANTE',
+  _id: 5d1369bdc5869a26e0889540,
+  documento: '1234',
+  nombre: 'Estudiante',
+  correo: 'estudiante@test.test',
+  telefono: '12345',
+  __v: 0 }

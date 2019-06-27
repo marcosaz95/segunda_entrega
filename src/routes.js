@@ -3,7 +3,9 @@ const express = require('express');
 const app = express();
 const hbs = require('hbs');
 const path = require('path');
-const funciones = require('./funciones');
+const funcionesInscripcion = require('./funcionesInscripcion');
+const funcionesCurso = require('./funcionesCurso');
+const funcionesUsuario = require('./funcionesUsuario');
 
 //folders
 const viewsDirectory = path.join(__dirname, './views');
@@ -29,7 +31,7 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/check', (req, res) => {
-    funciones.registrarUsuario(req.body).then((data) => {
+    funcionesUsuario.registrarUsuario(req.body).then((data) => {
         res.writeHead(301, { Location: '/?creado=true' });
         res.end();
     }, (err) => {
@@ -41,11 +43,10 @@ app.post('/check', (req, res) => {
 });
 
 app.post('/checkCurso', (req, res) => {
-    funciones.registrarCurso(req.body).then((data) => {
+    funcionesCurso.registrarCurso(req.body).then((data) => {
         res.writeHead(301, { Location: '/lista?creado=true' });
         res.end();
     }, (err) => {
-        console.log(err);
         res.render('formulario-curso', {
             mensaje: 'Ya existe un curso con este id'
         })
@@ -53,39 +54,53 @@ app.post('/checkCurso', (req, res) => {
 });
 
 app.post('/actualizarUsuario', (req, res) => {
-    console.log(req.body);
-    funciones.actualizarUsuario(req.body);
-    res.redirect(307, `/lista?actualizado=true`);
+    funcionesUsuario.actualizarUsuario(req.body).then(() => {
+        res.writeHead(301, { Location: '/lista?actualizado=true' });
+        res.end();
+    })
 });
 
-app.post('/lista', (req, res) => {
-    funciones.obtenerUsuarioXDocumento(req.body.documento).then(async (data) => {
+app.post('/checkLogin', (req, res) => {
+    funcionesUsuario.obtenerUsuarioXDocumento(req.body.documento).then((data) => {
         if (data) {
-            const creado = req.query.creado ? true : false;
-            const actualizado = req.query.actualizado ? true : false;
             req.session.usuario = data;
-            let lista1;
-            let lista2;
-            if (data.rol === 'COORDINADOR') {
-                lista1 = await funciones.obtenerCursos();
-                lista2 = await funciones.obtenerUsuariosNoDocumento(req.body.documento);
-            } else {
-                lista1 = await funciones.obtenerUsuariosXCurso(req.body.documento);
-                lista2 = await funciones.obtenerUsuariosNoCurso(req.body.documento);
-            }
-            res.render('lista', {
-                usuario: data,
-                nombre: req.session.usuario.nombre,
-                creado,
-                actualizado,
-                lista1,
-                lista2
-            });
+            localStorage.setItem('documento', data.documento);
+            res.writeHead(301, { Location: '/lista' })
         } else {
             res.writeHead(301, { Location: '/?valid=false' });
-            res.end();
         }
-    }, (err) => { })
+        res.end();
+    })
+})
+
+app.get('/lista', (req, res) => {
+    const usuario = req.session.usuario;
+    if (!usuario) {
+        res.writeHead(301, { Location: '/' });
+    } else {
+        const creado = req.query.creado ? true : false;
+        const actualizado = req.query.actualizado ? true : false;
+        const cerrado = req.query.cerrado ? true : false;
+        let promises;
+        if (usuario.rol === 'COORDINADOR') {
+            promises = [funcionesCurso.obtenerCursos(), funcionesUsuario.obtenerUsuariosNoDocumento(usuario.documento)];
+        } else if (usuario.rol === 'DOCENTE') {
+            promises = [funcionesCurso.obtenerCursosDocente(usuario.documento)];
+        } else {
+            promises = [funcionesCurso.obtenerCursosXUsuario(usuario.documento), funcionesCurso.obtenerCursosNoUsuario(usuario.documento)];
+        }
+        Promise.all(promises).then((values) => {
+            const lista2 = values[1] ? values[1] : false;
+            res.render('lista', {
+                usuario,
+                creado,
+                actualizado,
+                lista1: values[0],
+                lista2,
+                cerrado
+            });
+        })
+    }
 });
 
 app.get('/cursosform', (req, res) => {
@@ -96,52 +111,68 @@ app.get('/cursosform', (req, res) => {
 });
 
 app.get('/detalle', (req, res) => {
-    console.log(req.query);
-    const split = req.query.info.split(',');
-    const type = split[0]
-    if (type === 'u') {
-        const usuario = funciones.obtenerUsuarioXDocumento(req.query.id);
-        res.render('detalle-usuario', {
-            usuario,
-            documento: req.query.documento,
-        });
+    const info = req.query.info;
+    const type = info[0];
+    if (!req.session.usuario) {
+        res.redirect('/');
     } else {
-        funciones.obtenerCursoXId(split[1]).then((curso) => {
-            res.render('detalle-curso', {
-                curso,
-                // documento: req.query.documento,
-                // eliminado: req.query.eliminado,
-                // inscrito: req.query.inscrito,
-                // cerrado: req.query.cerrado
-            });
-        })
+        if (type === 'u') {
+            const doc = info.substring(1, info.length);
+            funcionesUsuario.obtenerUsuarioXDocumento(doc).then((usuario) => {
+                res.render('detalle-usuario', {
+                    usuario,
+                });
+            })
+        } else {
+            const documento = req.session.usuario ? req.session.usuario.documento : localStorage.getItem('documento');
+            funcionesCurso.obtenerCursoXId(info.substring(1, info.length)).then(async (curso) => {
+                const inscripcion = await funcionesInscripcion.obtenerInscripcion(documento, curso.idCurso);
+                let listaEstudiantes;
+                let listaDocentes;
+                if (req.session.usuario.rol === 'COORDINADOR') {
+                    listaDocentes = await funcionesUsuario.obtenerDocentes();
+                }
+                if (['COORDINADOR', 'DOCENTE'].includes(req.session.usuario.rol)) {
+                    listaEstudiantes = await funcionesUsuario.obtenerEstudiantes(curso.idCurso);
+                }
+                res.render('detalle-curso', {
+                    curso,
+                    documento,
+                    rol: req.session.usuario.rol,
+                    estaInscrito: inscripcion ? true : false,
+                    eliminado: req.query.eliminado,
+                    inscrito: req.query.inscrito,
+                    listaEstudiantes,
+                    listaDocentes,
+                    
+                });
+            })
+        }
     }
 });
 
-app.get('/eliminarInscripcion', (req, res) => {
-    localStorage.setItem('documento', req.query.loggedDoc);
+app.get('/cambiarInscripcion', (req, res) => {
     if (req.query.documento && req.query.idCurso) {
-        funciones.eliminarInscripcion(req.query.documento, req.query.idCurso);
-        res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${req.query.loggedDoc}&tipo=c&eliminado=true`);
+        if (!req.query.estaInscrito || req.query.estaInscrito === 'false') {
+            funcionesInscripcion.inscribirEstudiante(req.query.documento, req.query.idCurso).then((data) => {
+                res.redirect(307, `/detalle?info=c${req.query.idCurso}&inscrito=true`);
+            })
+        } else {
+            funcionesInscripcion.eliminarInscripcion(req.query.documento, req.query.idCurso).then((data) => {
+                res.redirect(307, `/detalle?info=c${req.query.idCurso}&eliminado=true`);
+            })
+
+        }
+    } else {
+        res.redirect(307, `/detalle?info=c${req.query.idCurso}`);
     }
-});
+})
 
 app.get('/cerrarCurso', (req, res) => {
-    localStorage.setItem('documento', req.query.loggedDoc);
-    if (req.query.idCurso) {
-        funciones.cerrarCurso(req.query.idCurso);
-        res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${req.query.loggedDoc}&tipo=c&cerrado=true`);
-    }
-});
-
-app.get('/inscribir', (req, res) => {
-    console.log('inscribir', req.query);
-    localStorage.setItem('documento', req.query.loggedDoc);
-    if (req.query.documento && req.query.idCurso) {
-        funciones.inscribirEstudiante(req.query.documento, req.query.idCurso);
-        res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${req.query.loggedDoc}&tipo=c&inscrito=true`);
-    } else {
-        res.redirect(307, `/detalle?id=${req.query.idCurso}&documento=${req.query.loggedDoc}&tipo=c`);
+    if (req.query.docente && req.query.idCurso) {
+        funcionesCurso.cerrarCurso(req.query.docente, req.query.idCurso).then(() => {
+            res.redirect(307, `/lista?cerrado=true`);
+        })
     }
 });
 

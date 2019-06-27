@@ -34,6 +34,9 @@ const cursosSchema = new Schema({
         type: String,
         default: 'DISPONIBLE',
         enum: {values: ['DISPONIBLE', 'CERRADO']}
+    },
+    documentoDocente: {
+        type: String
     }
 });
 

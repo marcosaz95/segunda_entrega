@@ -1,10 +1,4 @@
 {{>header}}
-<script>
-    function eliminarInscripcion(documento, idCurso, loggedDoc) {
-        window.location = `/eliminarInscripcion?idCurso=${idCurso}&documento=${documento}&loggedDoc=${loggedDoc}`;
-    }
-</script>
-
 <div class="row justify-content-center padding-top-24">
     <div class="col-6">
         <div class="card">
@@ -21,28 +15,20 @@
                 <p class="card-text">{{curso.descripcion}}</p>
                 <h6 class="card-subtitle mb-2 text-muted">{{curso.modalidad}}</h6>
                 <h6 class="card-subtitle mb-2 text-muted">{{curso.intensidadHoraria}}</h6>
-                <form action="/inscribir" method="get">
+                <form action="/cambiarInscripcion" method="get">
                     <input type="hidden" name="documento" value="{{documento}}" />
                     <input type="hidden" name="idCurso" value="{{curso.idCurso}}" />
-                    {{#puedeInscribir documento curso.idCurso true}}
+                    <input type="hidden" name="estaInscrito" value="{{estaInscrito}}" />
+                    {{#puedeInscribir estaInscrito rol true curso.estado}}
+                    <button class="btn btn-danger" type="submit">Eliminar</button>
+                    {{/puedeInscribir}}
+                    {{#puedeInscribir estaInscrito rol false curso.estado}}
                     <button class="btn btn-primary" type="submit">Inscribir</button>
                     {{/puedeInscribir}}
                 </form>
-                <form action="/eliminarInscripcion" method="get">
-                    <input type="hidden" name="loggedDoc" value="{{documento}}" />
-                    <input type="hidden" name="documento" value="{{documento}}" />
-                    <input type="hidden" name="idCurso" value="{{curso.idCurso}}" />
-                    {{#puedeInscribir documento curso.idCurso false}}
-                    <button class="btn btn-danger" type="submit">Eliminar</button>
-                    {{/puedeInscribir}}
-                </form>
-                <form action="/cerrarCurso" method="get">
-                    <input type="hidden" name="loggedDoc" value="{{documento}}" />
-                    <input type="hidden" name="idCurso" value="{{curso.idCurso}}" />
-                    {{#puedeCerrar documento curso.idCurso}}
-                    <button class="btn btn-primary" type="submit">Cerrar</button>
-                    {{/puedeCerrar}}
-                </form>
+                {{!-- {{#esCoordinador rol}} --}}
+                {{{listarDocentes listaDocentes curso.idCurso rol}}}
+                {{!-- {{/esCoordinador}} --}}
             </div>
         </div>
     </div>
@@ -57,14 +43,9 @@
     <div class="alert alert-success row align-center col-6">Estudiante inscrito con exito</div>
 </div>
 {{/if}}
-{{#if cerrado}}
-<div class="row justify-content-center padding-top-24">
-    <div class="alert alert-success row align-center col-6">Curso cerrado con exito</div>
-</div>
-{{/if}}
 <div class="row justify-content-center">
     <div class="row align-center padding-top-24 col-6">
-        {{{listarEstudiantes curso.idCurso documento}}}
+        {{{listarEstudiantes listaEstudiantes rol curso.idCurso}}}
     </div>
 </div>
 {{>footer}}
