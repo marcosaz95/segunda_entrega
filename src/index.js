@@ -5,7 +5,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const port = process.env.PORT || 3000;
 require('./helpers');
 
 //paths
@@ -52,13 +51,13 @@ app.use((req, res, next) => {
 app.use(require('./routes'));
 
 //Conexión a la BD
-mongoose.connect('mongodb://localhost:27017/cursos', { useNewUrlParser: true }, (err, result) => {
+mongoose.connect(process.env.URLDB, { useNewUrlParser: true }, (err, result) => {
 	if (err) {
 		return console.log('error al conectar DB');
 	}
 	console.log('Conectado');
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
 	console.log('Corriendo node en el puerto 3000');
 });
