@@ -5,6 +5,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const port = process.env.PORT || 3000;
 require('./helpers');
 
 //paths
@@ -58,6 +59,6 @@ mongoose.connect('mongodb://localhost:27017/cursos', { useNewUrlParser: true }, 
 	console.log('Conectado');
 });
 
-app.listen(3000, () => {
+app.listen(port, () => {
 	console.log('Corriendo node en el puerto 3000');
 });
